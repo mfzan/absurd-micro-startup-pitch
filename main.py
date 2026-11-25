@@ -40,6 +40,13 @@ def main() -> int:
     # be world-readable. Never chmod the /output directory: it is
     # root-owned and merely writable, so chmod on it raises PermissionError.
     os.chmod(OUTPUT_PATH, 0o644)
+    # Read the file back and confirm it holds exactly the pitch we meant
+    # to write, so a silent write failure can never pass as a valid entry.
+    with open(OUTPUT_PATH, encoding="utf-8") as handle:
+        written = handle.read()
+    if written != text + "\n":
+        print("error: read-back mismatch in %s" % OUTPUT_PATH, file=sys.stderr)
+        return 1
     print("wrote %d-char pitch to %s" % (len(text), OUTPUT_PATH))
     return 0
 
